@@ -1,0 +1,164 @@
+<!doctype.html>
+<html lang="en">
+<head>
+<link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.css" rel="stylesheet" />
+<meta charset="UTF-8">
+  <style>
+   body{
+   	width: 100%;
+   	margin: 0
+   }
+   .wrap{
+   	display: block;
+   	width: 300px;
+   	height: 280px;
+   	margin: 100px auto;
+    /*background-color: red;*/
+   	/*overflow: hidden;*/
+   }
+   .box{
+   	position: absolute;
+   	width: 300px;
+   	height: 50px;
+    border-top-right-radius: 20px;
+    border-top-left-radius: 20px;
+   	background-color: #3F92DC;   
+   	z-index: 1;
+   }
+   .fa-star{
+   	padding-left: 10px;
+   	color: #EEC151;
+   }
+   .fa-times{
+   	position: absolute;
+   	right: 20px;
+   	margin: 16px 0;
+   	color: white;
+   	text-decoration: none;
+   }
+   .text{
+   	display: inline-block;
+   	color: white;
+   }
+   .fallow{
+   	position: absolute;
+   	top: 150px;
+   	width: 300px;
+   	height: 230px;
+   	border-bottom-right-radius: 20px;
+   	border-bottom-left-radius: 20px;   	
+   	background-color: orange;
+   }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+  <div class="box">
+    <i class="fa fa-star"></i>
+    <p class="text">可拖动的模态框</p>
+    <a  href="javascript:;" class="fa fa-times"></a>
+  </div> 
+    <div class="fallow"></div>
+  </div>
+
+<script type="text/javascript" src="utils.js"></script>
+<script type="text/javascript">
+
+  ;(function(){
+	  var move = function(opt){
+			      this.box = opt.box,
+			      this.fallow = opt.fallow,
+			      this.dele = opt.dele;
+			      _self = this;
+			      box = this.box;
+			      fallow = this.fallow;
+			      dele = this.dele;
+			  myelemDrag(box,fallow);
+			  this.fallowmove(box);
+			  addEvent(dele, 'click', function(){
+			  	_self.todelete.call(_self);
+			  })
+	  }
+
+	  move.prototype = {
+	  	fallowmove: function(el){  
+	  		var _self = this;
+        addEvent(el, 'mousedown', function(e){  //传入_self，不然this会指向el
+        	var e = e || window.event,
+        	    btop = getStyles(el, 'top'),
+        	    bleft = getStyles(el, 'left');
+        	addEvent(document, 'mousemove', function(){
+        		falmove()
+        	});
+
+        });
+
+        function falmove(){
+        	this.fallow.style.top = 50 + getStyles(this.box,'top') + 'px';
+        	this.fallow.style.left = getStyles(this.box,'left') + 'px'
+        };
+
+	  	},
+
+	  	todelete: function(){
+        elemParent(this.dele, 2).style.display = 'none';
+	  	}
+	  }
+
+	  window.move = move;
+  })()
+
+	// 拖拽元素(禁止跨越边界)
+	function myelemDrag(elem,elem2){
+	    var x,
+	        y,
+	        oright,
+	        obuttom;
+
+	    addEvent(elem, 'mousedown', function(e){
+	        var e = e || window.event;
+	        x = pagePos(e).X - getStyles(elem, 'left');
+	        y = pagePos(e).Y - getStyles(elem, 'top');
+	        oright = getStyles(elem, 'width') - x;
+	        obuttom = getStyles(elem, 'height') - y + getStyles(elem2, 'height');
+
+	        addEvent(document, 'mousemove', mouseMove);
+	        addEvent(document, 'mouseup', mouseUp);
+	        cancelBubble(e);
+	        preventDefaultEvent(e);
+	    });
+
+	    function mouseMove(e){
+	        var e = e || window.event;
+
+	        elem.style.top = pagePos(e).Y - y + 'px';
+	        elem.style.left = pagePos(e).X - x + 'px';
+	        if((getViewSize().width - pagePos(e).X) <= oright){
+	        	elem.style.left = getViewSize().width - getStyles(elem, 'width') + 'px';
+	        }
+	        if((getViewSize().height - pagePos(e).Y) <= obuttom){
+	        	elem.style.top = getViewSize().height - getStyles(elem, 'height') - getStyles(elem2, 'height') + 'px';
+	        }
+	        if(pagePos(e).X <= x){
+	        	elem.style.left = 0 + 'px';
+	        }
+	        if(pagePos(e).Y <= y){
+	        	elem.style.top = 0 + 'px';
+	        }
+	    }
+
+	    function mouseUp(e){
+	        var e = e || window.event;
+	        removeEvent(document, 'mousemove', mouseMove);
+	        removeEvent(document, 'mouseup', mouseUp);
+	    }
+	}  
+  new move({
+    box: document.getElementsByClassName('box')[0],
+    fallow: document.getElementsByClassName('fallow')[0],
+    dele: document.getElementsByClassName('fa-times')[0],
+  })
+</script>
+</body>
+</html>
+
